@@ -248,11 +248,43 @@ function getUpcomingClass() {
 (function () {
 
 function renderSchedule() {
-  const HOUR_HEIGHT = 60;
   const ramadan = isRamadanMode();
+
+  // Ramadan uses slot-based layout; normal uses continuous hourly grid
+  const RAMADAN_SLOTS = [
+    { startH: 8, startM: 0,  endH: 9,  endM: 15, label: "8:00 AM" },
+    { startH: 9, startM: 15, endH: 10, endM: 30, label: "9:15 AM" },
+    { startH: 10, startM: 30, endH: 11, endM: 45, label: "10:30 AM" },
+    { startH: 11, startM: 45, endH: 13, endM: 0,  label: "11:45 AM" },
+    { startH: 13, startM: 0,  endH: 14, endM: 15, label: "1:00 PM" },
+  ];
+
+  const SLOT_HEIGHT = 90; // px per ramadan slot
+  const HOUR_HEIGHT = 60; // px per hour in normal mode
   const HOUR_START = 8;
-  const HOUR_END = ramadan ? 15 : 20;
-  const TOTAL_HEIGHT = (HOUR_END - HOUR_START) * HOUR_HEIGHT;
+  const HOUR_END = 20;
+  const TOTAL_HEIGHT = ramadan
+    ? RAMADAN_SLOTS.length * SLOT_HEIGHT
+    : (HOUR_END - HOUR_START) * HOUR_HEIGHT;
+
+  // Convert time to px offset
+  function timeToPx(h, m) {
+    if (ramadan) {
+      const mins = h * 60 + m;
+      for (let i = 0; i < RAMADAN_SLOTS.length; i++) {
+        const s = RAMADAN_SLOTS[i];
+        const slotStart = s.startH * 60 + s.startM;
+        const slotEnd = s.endH * 60 + s.endM;
+        if (mins >= slotStart && mins <= slotEnd) {
+          const frac = (mins - slotStart) / (slotEnd - slotStart);
+          return (i + frac) * SLOT_HEIGHT;
+        }
+      }
+      // Fallback: after last slot
+      return RAMADAN_SLOTS.length * SLOT_HEIGHT;
+    }
+    return ((h - HOUR_START) + m / 60) * HOUR_HEIGHT;
+  }
 
   const grid  = document.getElementById("schedule-grid");
   const today = new Date();
@@ -306,23 +338,41 @@ function renderSchedule() {
 
   // Time column + day columns
   let timeColHTML = `<div class="time-col" style="height:${TOTAL_HEIGHT}px">`;
-  for (let h = HOUR_START; h <= HOUR_END; h++) {
-    const top = (h - HOUR_START) * HOUR_HEIGHT;
-    timeColHTML += `<div class="hour-label" style="top:${top}px">${formatTime12(h, 0)}</div>`;
+  if (ramadan) {
+    RAMADAN_SLOTS.forEach((s, i) => {
+      const top = i * SLOT_HEIGHT;
+      timeColHTML += `<div class="hour-label" style="top:${top}px">${s.label}</div>`;
+    });
+    // End label
+    const lastSlot = RAMADAN_SLOTS[RAMADAN_SLOTS.length - 1];
+    timeColHTML += `<div class="hour-label" style="top:${RAMADAN_SLOTS.length * SLOT_HEIGHT}px">${formatTime12(lastSlot.endH, lastSlot.endM)}</div>`;
+  } else {
+    for (let h = HOUR_START; h <= HOUR_END; h++) {
+      const top = (h - HOUR_START) * HOUR_HEIGHT;
+      timeColHTML += `<div class="hour-label" style="top:${top}px">${formatTime12(h, 0)}</div>`;
+    }
   }
   timeColHTML += `</div>`;
 
   let dayColsHTML = "";
   WEEKDAYS.forEach((dayName) => {
     let colHTML = `<div class="day-body" style="height:${TOTAL_HEIGHT}px">`;
-    for (let h = HOUR_START; h <= HOUR_END; h++) {
-      const top = (h - HOUR_START) * HOUR_HEIGHT;
-      colHTML += `<div class="hour-line" style="top:${top}px"></div>`;
+    if (ramadan) {
+      for (let i = 0; i <= RAMADAN_SLOTS.length; i++) {
+        const top = i * SLOT_HEIGHT;
+        colHTML += `<div class="hour-line" style="top:${top}px"></div>`;
+      }
+    } else {
+      for (let h = HOUR_START; h <= HOUR_END; h++) {
+        const top = (h - HOUR_START) * HOUR_HEIGHT;
+        colHTML += `<div class="hour-line" style="top:${top}px"></div>`;
+      }
     }
     const dayBlocks = blocks.filter((b) => b.day === dayName);
     dayBlocks.forEach((b) => {
-      const topPx = ((b.startH - HOUR_START) + b.startM / 60) * HOUR_HEIGHT;
-      const heightPx = ((b.endH - b.startH) + (b.endM - b.startM) / 60) * HOUR_HEIGHT;
+      const topPx = timeToPx(b.startH, b.startM);
+      const bottomPx = timeToPx(b.endH, b.endM);
+      const heightPx = bottomPx - topPx;
       const c = COURSE_COLORS[b.colorIdx];
       const startStr = formatTime12(b.startH, b.startM);
       const endStr = formatTime12(b.endH, b.endM);
@@ -335,9 +385,13 @@ function renderSchedule() {
     });
     if (dayName === todayName) {
       const nowMin = today.getHours() * 60 + today.getMinutes();
-      const nowH = nowMin / 60;
-      if (nowH >= HOUR_START && nowH <= HOUR_END) {
-        const top = (nowH - HOUR_START) * HOUR_HEIGHT;
+      const nowH_dec = nowMin / 60;
+      const gridStart = ramadan ? (RAMADAN_SLOTS[0].startH + RAMADAN_SLOTS[0].startM / 60) : HOUR_START;
+      const gridEnd = ramadan
+        ? (RAMADAN_SLOTS[RAMADAN_SLOTS.length - 1].endH + RAMADAN_SLOTS[RAMADAN_SLOTS.length - 1].endM / 60)
+        : HOUR_END;
+      if (nowH_dec >= gridStart && nowH_dec <= gridEnd) {
+        const top = timeToPx(today.getHours(), today.getMinutes());
         colHTML += `<div class="now-line" style="top:${top}px"></div>`;
       }
     }
