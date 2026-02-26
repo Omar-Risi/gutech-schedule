@@ -62,8 +62,115 @@
 <div class="toast" id="toast"></div>
 
 
-<script src="./script.js"></script>
 <script>
+/* ── Parser & Storage ─────────────────────────────────────── */
+
+function parseScheduleString(str) {
+  const regex = /(\w+)\((\d{2}\/\d{2}\/\d{4})\)\s+(\d{2}:\d{2}:\d{2})\s+-\s+(\d{2}:\d{2}:\d{2})\s+([\w-]+\s+\w+)/g;
+  const results = [];
+  let match;
+
+  while ((match = regex.exec(str)) !== null) {
+    results.push({
+      day: `${match[1]}(${match[2]})`,
+      time: `${match[3]} - ${match[4]}`,
+      room: match[5].trim()
+    });
+  }
+
+  return results;
+}
+
+function saveCourse(name, lecturer, timings) {
+  const course = {
+    name: name,
+    lecturer: lecturer,
+    classes: parseScheduleString(timings)
+  };
+
+  const courses = JSON.parse(localStorage.getItem("courses") || "[]");
+  courses.push(course);
+  localStorage.setItem("courses", JSON.stringify(courses));
+
+  return course;
+}
+
+function getCourses() {
+  return JSON.parse(localStorage.getItem("courses") || "[]");
+}
+
+function deleteCourse(index) {
+  const courses = getCourses();
+  courses.splice(index, 1);
+  localStorage.setItem("courses", JSON.stringify(courses));
+}
+
+/* ── Ramadan setting ─────────────────────────────────────── */
+
+function isRamadanMode() {
+  return localStorage.getItem("is_ramadan_timing") === "true";
+}
+
+function setRamadanMode(on) {
+  localStorage.setItem("is_ramadan_timing", on ? "true" : "false");
+}
+
+const RAMADAN_MAP = [
+  { fromStart: [8, 0],  fromEnd: [10, 0], toStart: [8, 0],   toEnd: [9, 15] },
+  { fromStart: [10, 0], fromEnd: [12, 0], toStart: [9, 15],  toEnd: [10, 30] },
+  { fromStart: [12, 0], fromEnd: [14, 0], toStart: [10, 30], toEnd: [11, 45] },
+  { fromStart: [14, 0], fromEnd: [16, 0], toStart: [11, 45], toEnd: [13, 0] },
+  { fromStart: [16, 0], fromEnd: [18, 0], toStart: [13, 0],  toEnd: [14, 15] },
+];
+
+function applyRamadanTiming(startH, startM, endH, endM) {
+  for (const r of RAMADAN_MAP) {
+    if (startH === r.fromStart[0] && startM === r.fromStart[1] &&
+        endH === r.fromEnd[0] && endM === r.fromEnd[1]) {
+      return {
+        startH: r.toStart[0], startM: r.toStart[1],
+        endH: r.toEnd[0], endM: r.toEnd[1],
+      };
+    }
+  }
+  return { startH, startM, endH, endM };
+}
+
+const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu"];
+
+const COURSE_COLORS = [
+  { bg: "#dbeafe", border: "#3b82f6", text: "#1e3a5f" },
+  { bg: "#dcfce7", border: "#22c55e", text: "#14532d" },
+  { bg: "#fef9c3", border: "#eab308", text: "#713f12" },
+  { bg: "#fce7f3", border: "#ec4899", text: "#831843" },
+  { bg: "#e0e7ff", border: "#6366f1", text: "#312e81" },
+  { bg: "#ffedd5", border: "#f97316", text: "#7c2d12" },
+  { bg: "#f3e8ff", border: "#a855f7", text: "#581c87" },
+  { bg: "#ccfbf1", border: "#14b8a6", text: "#134e4a" },
+];
+
+function extractDayName(dayStr) {
+  return dayStr.split("(")[0];
+}
+
+function parseTime(timeStr) {
+  const [h, m] = timeStr.split(":").map(Number);
+  return { h, m };
+}
+
+function parseTimeRange(rangeStr) {
+  const [s, e] = rangeStr.split(" - ");
+  return { start: parseTime(s), end: parseTime(e) };
+}
+
+function formatTime12(h, m) {
+  const ampm = h >= 12 ? "PM" : "AM";
+  const hour = h % 12 || 12;
+  return `${hour}:${String(m).padStart(2, "0")} ${ampm}`;
+}
+
+/* ── Page Logic ──────────────────────────────────────────── */
 (function () {
   const listEl   = document.getElementById("course-list");
   const nameIn   = document.getElementById("course-name");
