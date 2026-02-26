@@ -40,10 +40,46 @@ function deleteCourse(index) {
   localStorage.setItem("courses", JSON.stringify(courses));
 }
 
+/* ── Ramadan setting ─────────────────────────────────────── */
+
+function isRamadanMode() {
+  return localStorage.getItem("is_ramadan_timing") === "true";
+}
+
+function setRamadanMode(on) {
+  localStorage.setItem("is_ramadan_timing", on ? "true" : "false");
+}
+
+/**
+ * Ramadan timing map: normal slot → compressed slot.
+ * Key = "HH:MM-HH:MM" (start-end in 24h), value = { startH, startM, endH, endM }
+ */
+const RAMADAN_MAP = [
+  { fromStart: [8, 0],  fromEnd: [10, 0], toStart: [8, 0],   toEnd: [9, 15] },
+  { fromStart: [10, 0], fromEnd: [12, 0], toStart: [9, 15],  toEnd: [10, 30] },
+  { fromStart: [12, 0], fromEnd: [14, 0], toStart: [10, 30], toEnd: [11, 45] },
+  { fromStart: [14, 0], fromEnd: [16, 0], toStart: [11, 45], toEnd: [13, 0] },
+  { fromStart: [16, 0], fromEnd: [18, 0], toStart: [13, 0],  toEnd: [14, 15] },
+];
+
+function applyRamadanTiming(startH, startM, endH, endM) {
+  for (const r of RAMADAN_MAP) {
+    if (startH === r.fromStart[0] && startM === r.fromStart[1] &&
+        endH === r.fromEnd[0] && endM === r.fromEnd[1]) {
+      return {
+        startH: r.toStart[0], startM: r.toStart[1],
+        endH: r.toEnd[0], endM: r.toEnd[1],
+      };
+    }
+  }
+  // No matching slot — return original
+  return { startH, startM, endH, endM };
+}
+
 /* ── Helpers ──────────────────────────────────────────────── */
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu"];
 
 const COURSE_COLORS = [
   { bg: "#dbeafe", border: "#3b82f6", text: "#1e3a5f" },
@@ -57,18 +93,15 @@ const COURSE_COLORS = [
 ];
 
 function extractDayName(dayStr) {
-  // "Mon(02/26/2026)" → "Mon"
   return dayStr.split("(")[0];
 }
 
 function parseTime(timeStr) {
-  // "08:30:00" → { h: 8, m: 30 }
   const [h, m] = timeStr.split(":").map(Number);
   return { h, m };
 }
 
 function parseTimeRange(rangeStr) {
-  // "08:00:00 - 10:00:00" → { start: {h,m}, end: {h,m} }
   const [s, e] = rangeStr.split(" - ");
   return { start: parseTime(s), end: parseTime(e) };
 }
@@ -82,53 +115,52 @@ function formatTime12(h, m) {
 function getWeekBounds(date) {
   const d = new Date(date);
   const dayIdx = d.getDay(); // 0=Sun
-  const monday = new Date(d);
-  monday.setDate(d.getDate() - ((dayIdx + 6) % 7));
-  monday.setHours(0, 0, 0, 0);
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
-  sunday.setHours(23, 59, 59, 999);
-  return { monday, sunday };
+  // Week starts on Sunday for Sun-Thu schedule
+  const sunday = new Date(d);
+  sunday.setDate(d.getDate() - dayIdx);
+  sunday.setHours(0, 0, 0, 0);
+  const saturday = new Date(sunday);
+  saturday.setDate(sunday.getDate() + 6);
+  saturday.setHours(23, 59, 59, 999);
+  return { weekStart: sunday, weekEnd: saturday };
 }
 
 /**
  * Returns flat list of class blocks for the current week.
- * Each item: { courseName, lecturer, day, startH, startM, endH, endM, room, colorIdx }
  */
 function getThisWeekClasses() {
   const courses = getCourses();
   const now = new Date();
-  const todayDayName = DAY_NAMES[now.getDay()];
-  const { monday, sunday } = getWeekBounds(now);
+  const { weekStart, weekEnd } = getWeekBounds(now);
+  const ramadan = isRamadanMode();
   const blocks = [];
 
   courses.forEach((course, ci) => {
     const colorIdx = ci % COURSE_COLORS.length;
     course.classes.forEach((cls) => {
       const dayName = extractDayName(cls.day);
-      // Check if the specific date falls in this week, OR day name matches a weekday
       const dateStr = cls.day.match(/\((\d{2}\/\d{2}\/\d{4})\)/);
       let inThisWeek = false;
       if (dateStr) {
         const [mm, dd, yyyy] = dateStr[1].split("/").map(Number);
         const clsDate = new Date(yyyy, mm - 1, dd);
-        inThisWeek = clsDate >= monday && clsDate <= sunday;
+        inThisWeek = clsDate >= weekStart && clsDate <= weekEnd;
       }
-      // Fallback: match by day name for recurring schedules
       if (!inThisWeek && WEEKDAYS.includes(dayName)) {
         inThisWeek = true;
       }
 
       if (inThisWeek) {
         const { start, end } = parseTimeRange(cls.time);
+        let timing = { startH: start.h, startM: start.m, endH: end.h, endM: end.m };
+        if (ramadan) {
+          timing = applyRamadanTiming(timing.startH, timing.startM, timing.endH, timing.endM);
+        }
         blocks.push({
           courseName: course.name,
           lecturer: course.lecturer,
           day: dayName,
-          startH: start.h,
-          startM: start.m,
-          endH: end.h,
-          endM: end.m,
+          ...timing,
           room: cls.room,
           colorIdx,
         });
@@ -146,7 +178,7 @@ function getUpcomingClass() {
   const now = new Date();
   const currentDay = DAY_NAMES[now.getDay()];
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  const dayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const dayOrder = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   let best = null;
   let bestScore = Infinity;
@@ -162,18 +194,15 @@ function getUpcomingClass() {
     const bMinutes = b.startH * 60 + b.startM;
 
     if (dayDiff === 0 && bMinutes <= currentMinutes) {
-      // Class already started or passed today
-      // Check if class is currently ongoing
       const bEndMinutes = b.endH * 60 + b.endM;
       if (bEndMinutes > currentMinutes) {
-        // Currently ongoing — treat as highest priority
         if (best === null || bestScore > 0) {
           best = { ...b, ongoing: true };
           bestScore = -1;
         }
         return;
       }
-      dayDiff = 7; // push to next week
+      dayDiff = 7;
     }
 
     const score = dayDiff * 1440 + bMinutes;

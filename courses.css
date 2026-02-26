@@ -1,0 +1,165 @@
+/* ── courses.css — course management page ──────────────── */
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+
+h1 {
+  font-size: 1.35rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ── Form card ─────────────────────────────────────────── */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.form-card h2 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: var(--accent);
+}
+
+.form-row {
+  display: flex;
+  gap: .75rem;
+  margin-bottom: .75rem;
+  flex-wrap: wrap;
+}
+.form-row .field {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+.form-row label {
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.form-row input,
+.form-row textarea {
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  padding: .55rem .7rem;
+  font-size: .875rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color .15s;
+  width: 100%;
+}
+.form-row input:focus,
+.form-row textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, .12);
+}
+.form-row textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: .8rem;
+  line-height: 1.5;
+}
+
+.form-hint {
+  font-size: .72rem;
+  color: var(--text-muted);
+  margin-top: -.35rem;
+  margin-bottom: .75rem;
+  line-height: 1.4;
+}
+.form-hint code {
+  background: var(--grid-line, #f1f5f9);
+  padding: .1rem .3rem;
+  border-radius: .25rem;
+  font-size: .7rem;
+}
+
+/* ── Course list ───────────────────────────────────────── */
+.section-label {
+  font-size: 1rem;
+  margin-bottom: .75rem;
+  color: var(--text-muted);
+}
+
+.course-list {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.course-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: .85rem;
+  padding: 1rem 1.15rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: box-shadow .15s;
+}
+.course-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .05);
+}
+
+.course-info { flex: 1; min-width: 0; }
+.course-info .name {
+  font-weight: 700;
+  font-size: .95rem;
+  margin-bottom: .15rem;
+}
+.course-info .lecturer {
+  font-size: .8rem;
+  color: var(--text-muted);
+  margin-bottom: .45rem;
+}
+.course-info .classes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+}
+.class-tag {
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: .7rem;
+  font-weight: 600;
+  padding: .2rem .55rem;
+  border-radius: .35rem;
+  white-space: nowrap;
+}
+.class-tag.ramadan {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.empty-list {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--text-muted);
+  font-size: .9rem;
+}
+
+/* ── Responsive — courses ──────────────────────────────── */
+@media (max-width: 640px) {
+  .container {
+    padding: 1rem .75rem 2rem;
+  }
+  .form-row {
+    flex-direction: column;
+  }
+  .form-row .field {
+    min-width: 0;
+  }
+  .course-card {
+    flex-direction: column;
+  }
+}

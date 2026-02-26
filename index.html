@@ -5,272 +5,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GUtech Schedule</title>
+  <link rel="stylesheet" href="common.css">
+  <link rel="stylesheet" href="schedule.css">
   <script src="./script.js"></script>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --surface: #ffffff;
-      --border: #e2e8f0;
-      --text: #1e293b;
-      --text-muted: #64748b;
-      --accent: #3b82f6;
-      --accent-light: #dbeafe;
-      --grid-line: #f1f5f9;
-      --hour-label: #94a3b8;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100dvh;
-    }
-
-    /* ── NAV ───────────────────────────────────────────────── */
-    nav {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 1.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 56px;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-    nav .brand {
-      font-weight: 700;
-      font-size: 1.15rem;
-      color: var(--accent);
-      text-decoration: none;
-    }
-    nav .links { display: flex; gap: .75rem; }
-    nav .links a {
-      font-size: .875rem;
-      font-weight: 500;
-      text-decoration: none;
-      padding: .4rem .85rem;
-      border-radius: .5rem;
-      transition: background .15s;
-      color: var(--text);
-    }
-    nav .links a.active,
-    nav .links a:hover { background: var(--accent-light); color: var(--accent); }
-
-    /* ── UPCOMING ──────────────────────────────────────────── */
-    .upcoming-wrapper {
-      max-width: 1200px;
-      margin: 1.25rem auto 0;
-      padding: 0 1.25rem;
-    }
-    .upcoming-card {
-      background: linear-gradient(135deg, #3b82f6, #6366f1);
-      border-radius: 1rem;
-      padding: 1.25rem 1.5rem;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 1.25rem;
-      flex-wrap: wrap;
-    }
-    .upcoming-card .label {
-      font-size: .7rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      opacity: .85;
-    }
-    .upcoming-card .course-name {
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-    .upcoming-card .meta {
-      font-size: .85rem;
-      opacity: .9;
-      margin-top: .15rem;
-    }
-    .upcoming-card .badge {
-      background: rgba(255,255,255,.2);
-      border-radius: .5rem;
-      padding: .3rem .7rem;
-      font-size: .8rem;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .upcoming-card .badge.ongoing {
-      background: rgba(255,255,255,.35);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%,100% { opacity: 1; }
-      50% { opacity: .6; }
-    }
-    .upcoming-empty {
-      text-align: center;
-      color: var(--text-muted);
-      padding: 1.25rem;
-      font-size: .9rem;
-    }
-
-    /* ── WEEK HEADING ─────────────────────────────────────── */
-    .week-heading {
-      max-width: 1200px;
-      margin: 1.25rem auto .75rem;
-      padding: 0 1.25rem;
-      font-size: .85rem;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    /* ── SCHEDULE GRID ────────────────────────────────────── */
-    .schedule-scroll {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 1.25rem 2rem;
-      overflow-x: auto;
-    }
-    .schedule-grid {
-      display: grid;
-      grid-template-columns: 54px repeat(5, 1fr);
-      grid-template-rows: auto;
-      min-width: 680px;
-      background: var(--surface);
-      border-radius: 1rem;
-      border: 1px solid var(--border);
-      overflow: hidden;
-    }
-
-    /* header row */
-    .grid-header {
-      display: contents;
-    }
-    .grid-header .corner {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-    }
-    .grid-header .day-col {
-      text-align: center;
-      font-size: .8rem;
-      font-weight: 600;
-      padding: .65rem .25rem;
-      color: var(--text-muted);
-      border-bottom: 1px solid var(--border);
-      border-left: 1px solid var(--border);
-    }
-    .grid-header .day-col.today {
-      color: var(--accent);
-      background: var(--accent-light);
-    }
-
-    /* body area — one cell per day column */
-    .grid-body {
-      display: contents;
-    }
-    .time-col {
-      position: relative;
-      border-right: 1px solid var(--border);
-    }
-    .time-col .hour-label {
-      position: absolute;
-      right: 8px;
-      font-size: .65rem;
-      color: var(--hour-label);
-      transform: translateY(-50%);
-      white-space: nowrap;
-    }
-    .day-body {
-      position: relative;
-      border-left: 1px solid var(--border);
-    }
-    .hour-line {
-      position: absolute;
-      left: 0; right: 0;
-      border-top: 1px solid var(--grid-line);
-    }
-
-    /* class block */
-    .class-block {
-      position: absolute;
-      left: 4px; right: 4px;
-      border-radius: .5rem;
-      padding: .35rem .45rem;
-      overflow: hidden;
-      font-size: .72rem;
-      line-height: 1.3;
-      border-left: 3px solid;
-      cursor: default;
-      transition: transform .1s, box-shadow .1s;
-      z-index: 2;
-    }
-    .class-block:hover {
-      transform: scale(1.02);
-      box-shadow: 0 4px 12px rgba(0,0,0,.1);
-      z-index: 5;
-    }
-    .class-block .cb-name {
-      font-weight: 700;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .class-block .cb-time,
-    .class-block .cb-room {
-      opacity: .8;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* now indicator */
-    .now-line {
-      position: absolute;
-      left: 0; right: 0;
-      height: 2px;
-      background: #ef4444;
-      z-index: 4;
-    }
-    .now-line::before {
-      content: '';
-      position: absolute;
-      left: -4px; top: -3px;
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #ef4444;
-    }
-
-    /* empty state */
-    .empty-state {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 3rem 1rem;
-      color: var(--text-muted);
-    }
-    .empty-state h2 { font-size: 1.1rem; margin-bottom: .5rem; }
-    .empty-state a {
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    /* ── RESPONSIVE ───────────────────────────────────────── */
-    @media (max-width: 640px) {
-      nav { padding: 0 .75rem; }
-      .upcoming-wrapper, .week-heading, .schedule-scroll { padding-left: .75rem; padding-right: .75rem; }
-      .upcoming-card { padding: 1rem; }
-      .upcoming-card .course-name { font-size: 1.05rem; }
-    }
-  </style>
 </head>
 
 <body>
 
 <nav>
   <a href="index.html" class="brand">GUtech Schedule</a>
-  <div class="links">
-    <a href="index.html" class="active">Schedule</a>
-    <a href="courses.html">Courses</a>
+  <div class="nav-right">
+    <label class="ramadan-toggle" title="Ramadan timings">
+      <input type="checkbox" id="ramadan-toggle">
+      <span class="toggle-track"></span>
+      <span>Ramadan</span>
+    </label>
+    <div class="links">
+      <a href="index.html" class="active">Schedule</a>
+      <a href="courses.html">Courses</a>
+    </div>
   </div>
 </nav>
 
@@ -286,10 +39,11 @@
 </div>
 
 <script>
-(function () {
+function renderSchedule() {
+  const HOUR_HEIGHT = 60;
+  const ramadan = isRamadanMode();
   const HOUR_START = 8;
-  const HOUR_END   = 20;
-  const HOUR_HEIGHT = 60; // px per hour
+  const HOUR_END = ramadan ? 15 : 20;
   const TOTAL_HEIGHT = (HOUR_END - HOUR_START) * HOUR_HEIGHT;
 
   const grid  = document.getElementById("schedule-grid");
@@ -297,10 +51,10 @@
   const todayName = DAY_NAMES[today.getDay()];
 
   /* ── Week label ──────────────────────────────────── */
-  const { monday, sunday } = getWeekBounds(today);
+  const { weekStart, weekEnd } = getWeekBounds(today);
   const fmt = (d) => d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
   document.getElementById("week-label").textContent =
-    `Week of ${fmt(monday)} – ${fmt(sunday)}`;
+    `Week of ${fmt(weekStart)} – ${fmt(weekEnd)}` + (ramadan ? "  🌙 Ramadan timings" : "");
 
   /* ── Upcoming card ───────────────────────────────── */
   const up = getUpcomingClass();
@@ -353,12 +107,10 @@
   let dayColsHTML = "";
   WEEKDAYS.forEach((dayName) => {
     let colHTML = `<div class="day-body" style="height:${TOTAL_HEIGHT}px">`;
-    // hour grid lines
     for (let h = HOUR_START; h <= HOUR_END; h++) {
       const top = (h - HOUR_START) * HOUR_HEIGHT;
       colHTML += `<div class="hour-line" style="top:${top}px"></div>`;
     }
-    // class blocks for this day
     const dayBlocks = blocks.filter((b) => b.day === dayName);
     dayBlocks.forEach((b) => {
       const topPx = ((b.startH - HOUR_START) + b.startM / 60) * HOUR_HEIGHT;
@@ -373,7 +125,6 @@
           <div class="cb-room">${b.room}</div>
         </div>`;
     });
-    // now-line for today
     if (dayName === todayName) {
       const nowMin = today.getHours() * 60 + today.getMinutes();
       const nowH = nowMin / 60;
@@ -387,9 +138,18 @@
   });
 
   grid.innerHTML = headerHTML + `<div class="grid-body">${timeColHTML}${dayColsHTML}</div>`;
-
-  // Make grid-body a contents display so children flow into the grid
   document.querySelector(".grid-body").style.display = "contents";
+}
+
+// Init
+(function () {
+  const toggle = document.getElementById("ramadan-toggle");
+  toggle.checked = isRamadanMode();
+  toggle.addEventListener("change", () => {
+    setRamadanMode(toggle.checked);
+    renderSchedule();
+  });
+  renderSchedule();
 })();
 </script>
 

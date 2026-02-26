@@ -1,0 +1,187 @@
+/* ── common.css — shared across all pages ──────────────── */
+
+:root {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --accent: #3b82f6;
+  --accent-light: #dbeafe;
+  --danger: #ef4444;
+  --danger-light: #fee2e2;
+  --grid-line: #f1f5f9;
+  --hour-label: #94a3b8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+}
+
+/* ── NAV ───────────────────────────────────────────────── */
+nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+nav .brand {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--accent);
+  text-decoration: none;
+}
+nav .nav-right {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+nav .links {
+  display: flex;
+  gap: .5rem;
+}
+nav .links a {
+  font-size: .875rem;
+  font-weight: 500;
+  text-decoration: none;
+  padding: .4rem .85rem;
+  border-radius: .5rem;
+  transition: background .15s;
+  color: var(--text);
+}
+nav .links a.active,
+nav .links a:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+/* ── Ramadan toggle ─────────────────────────────────────── */
+.ramadan-toggle {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.ramadan-toggle input {
+  display: none;
+}
+.toggle-track {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  background: var(--border);
+  border-radius: 10px;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.15);
+}
+.ramadan-toggle input:checked + .toggle-track {
+  background: var(--accent);
+}
+.ramadan-toggle input:checked + .toggle-track::after {
+  transform: translateX(14px);
+}
+
+/* ── Buttons ────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .55rem 1.1rem;
+  font-size: .85rem;
+  font-weight: 600;
+  border: none;
+  border-radius: .5rem;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+.btn:active { transform: scale(.97); }
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: #2563eb; }
+.btn-danger {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+.btn-danger:hover { background: #fecaca; }
+.btn-sm {
+  padding: .35rem .7rem;
+  font-size: .75rem;
+}
+
+/* ── Toast ──────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #1e293b;
+  color: #fff;
+  padding: .65rem 1.25rem;
+  border-radius: .6rem;
+  font-size: .85rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: transform .3s, opacity .3s;
+  z-index: 100;
+  white-space: nowrap;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ── RESPONSIVE (shared) ────────────────────────────────── */
+@media (max-width: 640px) {
+  nav {
+    padding: 0 .75rem;
+    height: auto;
+    min-height: 56px;
+    flex-wrap: wrap;
+    gap: .35rem;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+  }
+  nav .nav-right {
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+  nav .links a {
+    padding: .3rem .6rem;
+    font-size: .8rem;
+  }
+  .ramadan-toggle span { display: none; }
+  .ramadan-toggle::after {
+    content: '🌙';
+    font-size: .85rem;
+  }
+}

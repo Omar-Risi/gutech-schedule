@@ -5,253 +5,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Manage Courses – GUtech Schedule</title>
+  <link rel="stylesheet" href="common.css">
+  <link rel="stylesheet" href="courses.css">
   <script src="./script.js"></script>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --surface: #ffffff;
-      --border: #e2e8f0;
-      --text: #1e293b;
-      --text-muted: #64748b;
-      --accent: #3b82f6;
-      --accent-light: #dbeafe;
-      --danger: #ef4444;
-      --danger-light: #fee2e2;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100dvh;
-    }
-
-    /* ── NAV ───────────────────────────────────────────────── */
-    nav {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 1.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 56px;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-    nav .brand {
-      font-weight: 700;
-      font-size: 1.15rem;
-      color: var(--accent);
-      text-decoration: none;
-    }
-    nav .links { display: flex; gap: .75rem; }
-    nav .links a {
-      font-size: .875rem;
-      font-weight: 500;
-      text-decoration: none;
-      padding: .4rem .85rem;
-      border-radius: .5rem;
-      transition: background .15s;
-      color: var(--text);
-    }
-    nav .links a.active,
-    nav .links a:hover { background: var(--accent-light); color: var(--accent); }
-
-    /* ── LAYOUT ─────────────────────────────────────────── */
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 1.5rem 1.25rem 3rem;
-    }
-
-    h1 {
-      font-size: 1.35rem;
-      margin-bottom: 1.25rem;
-    }
-
-    /* ── FORM ───────────────────────────────────────────── */
-    .form-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 1rem;
-      padding: 1.25rem;
-      margin-bottom: 1.5rem;
-    }
-    .form-card h2 {
-      font-size: 1rem;
-      margin-bottom: 1rem;
-      color: var(--accent);
-    }
-
-    .form-row {
-      display: flex;
-      gap: .75rem;
-      margin-bottom: .75rem;
-      flex-wrap: wrap;
-    }
-    .form-row .field {
-      flex: 1;
-      min-width: 200px;
-      display: flex;
-      flex-direction: column;
-      gap: .3rem;
-    }
-    .form-row label {
-      font-size: .75rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: .04em;
-    }
-    .form-row input,
-    .form-row textarea {
-      border: 1px solid var(--border);
-      border-radius: .5rem;
-      padding: .55rem .7rem;
-      font-size: .875rem;
-      font-family: inherit;
-      outline: none;
-      transition: border-color .15s;
-    }
-    .form-row input:focus,
-    .form-row textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(59,130,246,.12);
-    }
-    .form-row textarea {
-      resize: vertical;
-      min-height: 80px;
-      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-      font-size: .8rem;
-      line-height: 1.5;
-    }
-
-    .form-hint {
-      font-size: .72rem;
-      color: var(--text-muted);
-      margin-top: -.35rem;
-      margin-bottom: .75rem;
-      line-height: 1.4;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      padding: .55rem 1.1rem;
-      font-size: .85rem;
-      font-weight: 600;
-      border: none;
-      border-radius: .5rem;
-      cursor: pointer;
-      transition: background .15s, transform .1s;
-    }
-    .btn:active { transform: scale(.97); }
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-    }
-    .btn-primary:hover { background: #2563eb; }
-    .btn-danger {
-      background: var(--danger-light);
-      color: var(--danger);
-    }
-    .btn-danger:hover { background: #fecaca; }
-    .btn-sm {
-      padding: .35rem .7rem;
-      font-size: .75rem;
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 1.5rem;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: #1e293b;
-      color: #fff;
-      padding: .65rem 1.25rem;
-      border-radius: .6rem;
-      font-size: .85rem;
-      font-weight: 500;
-      opacity: 0;
-      transition: transform .3s, opacity .3s;
-      z-index: 100;
-    }
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
-
-    /* ── COURSE LIST ─────────────────────────────────────── */
-    .course-list { display: flex; flex-direction: column; gap: .75rem; }
-
-    .course-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: .85rem;
-      padding: 1rem 1.15rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 1rem;
-      transition: box-shadow .15s;
-    }
-    .course-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.05); }
-
-    .course-info { flex: 1; min-width: 0; }
-    .course-info .name {
-      font-weight: 700;
-      font-size: .95rem;
-      margin-bottom: .15rem;
-    }
-    .course-info .lecturer {
-      font-size: .8rem;
-      color: var(--text-muted);
-      margin-bottom: .45rem;
-    }
-    .course-info .classes {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .35rem;
-    }
-    .class-tag {
-      background: var(--accent-light);
-      color: var(--accent);
-      font-size: .7rem;
-      font-weight: 600;
-      padding: .2rem .55rem;
-      border-radius: .35rem;
-      white-space: nowrap;
-    }
-
-    .empty-list {
-      text-align: center;
-      padding: 2.5rem 1rem;
-      color: var(--text-muted);
-      font-size: .9rem;
-    }
-
-    /* ── RESPONSIVE ───────────────────────────────────────── */
-    @media (max-width: 640px) {
-      nav { padding: 0 .75rem; }
-      .container { padding: 1rem .75rem 2rem; }
-      .form-row { flex-direction: column; }
-      .form-row .field { min-width: 0; }
-      .course-card { flex-direction: column; }
-    }
-  </style>
 </head>
 
 <body>
 
 <nav>
   <a href="index.html" class="brand">GUtech Schedule</a>
-  <div class="links">
-    <a href="index.html">Schedule</a>
-    <a href="courses.html" class="active">Courses</a>
+  <div class="nav-right">
+    <label class="ramadan-toggle" title="Ramadan timings">
+      <input type="checkbox" id="ramadan-toggle">
+      <span class="toggle-track"></span>
+      <span>Ramadan</span>
+    </label>
+    <div class="links">
+      <a href="index.html">Schedule</a>
+      <a href="courses.html" class="active">Courses</a>
+    </div>
   </div>
 </nav>
 
@@ -274,7 +46,7 @@
     <div class="form-row">
       <div class="field" style="flex:1;min-width:0">
         <label for="course-timings">Schedule (paste from GUtech)</label>
-        <textarea id="course-timings" placeholder="Mon(02/26/2026) 08:00:00 - 10:00:00 Room-123 A&#10;Wed(02/28/2026) 10:00:00 - 12:00:00 Room-456 B"></textarea>
+        <textarea id="course-timings" placeholder="Sun(02/22/2026) 08:00:00 - 10:00:00 Room-123 A&#10;Tue(02/24/2026) 10:00:00 - 12:00:00 Room-456 B"></textarea>
       </div>
     </div>
     <div class="form-hint">
@@ -284,7 +56,7 @@
   </div>
 
   <!-- Course list -->
-  <h2 style="font-size:1rem;margin-bottom:.75rem;color:var(--text-muted)">Your Courses</h2>
+  <h2 class="section-label">Your Courses</h2>
   <div class="course-list" id="course-list"></div>
 </div>
 
@@ -299,6 +71,14 @@
   const saveBtn  = document.getElementById("btn-save");
   const toastEl  = document.getElementById("toast");
 
+  // Ramadan toggle
+  const toggle = document.getElementById("ramadan-toggle");
+  toggle.checked = isRamadanMode();
+  toggle.addEventListener("change", () => {
+    setRamadanMode(toggle.checked);
+    renderList();
+  });
+
   function showToast(msg) {
     toastEl.textContent = msg;
     toastEl.classList.add("show");
@@ -307,6 +87,7 @@
 
   function renderList() {
     const courses = getCourses();
+    const ramadan = isRamadanMode();
     if (courses.length === 0) {
       listEl.innerHTML = `<div class="empty-list">No courses yet. Add one above!</div>`;
       return;
@@ -315,10 +96,17 @@
     listEl.innerHTML = courses.map((c, i) => {
       const tags = c.classes.map((cl) => {
         const day = cl.day.split("(")[0];
-        const [start] = cl.time.split(" - ");
-        const [h, m] = start.split(":").map(Number);
-        const t = formatTime12(h, m);
-        return `<span class="class-tag">${day} ${t} · ${cl.room}</span>`;
+        const [startStr, endStr] = cl.time.split(" - ");
+        let [sH, sM] = startStr.split(":").map(Number);
+        let [eH, eM] = endStr.split(":").map(Number);
+        let tagClass = "class-tag";
+        if (ramadan) {
+          const r = applyRamadanTiming(sH, sM, eH, eM);
+          sH = r.startH; sM = r.startM; eH = r.endH; eM = r.endM;
+          tagClass += " ramadan";
+        }
+        const t = formatTime12(sH, sM);
+        return `<span class="${tagClass}">${day} ${t} · ${cl.room}</span>`;
       }).join("");
 
       return `
@@ -332,7 +120,6 @@
         </div>`;
     }).join("");
 
-    // wire delete buttons
     listEl.querySelectorAll("[data-idx]").forEach((btn) => {
       btn.addEventListener("click", () => {
         const idx = Number(btn.dataset.idx);

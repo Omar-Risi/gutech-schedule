@@ -1,0 +1,216 @@
+/* ── schedule.css — index / schedule page ──────────────── */
+
+/* ── Upcoming card ─────────────────────────────────────── */
+.upcoming-wrapper {
+  max-width: 1200px;
+  margin: 1.25rem auto 0;
+  padding: 0 1.25rem;
+}
+.upcoming-card {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  border-radius: 1rem;
+  padding: 1.25rem 1.5rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+.upcoming-card .label {
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  opacity: .85;
+}
+.upcoming-card .course-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.upcoming-card .meta {
+  font-size: .85rem;
+  opacity: .9;
+  margin-top: .15rem;
+}
+.upcoming-card .badge {
+  background: rgba(255, 255, 255, .2);
+  border-radius: .5rem;
+  padding: .3rem .7rem;
+  font-size: .8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.upcoming-card .badge.ongoing {
+  background: rgba(255, 255, 255, .35);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .6; }
+}
+.upcoming-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 1.25rem;
+  font-size: .9rem;
+}
+.upcoming-empty a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* ── Week heading ──────────────────────────────────────── */
+.week-heading {
+  max-width: 1200px;
+  margin: 1.25rem auto .75rem;
+  padding: 0 1.25rem;
+  font-size: .85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ── Schedule grid ─────────────────────────────────────── */
+.schedule-scroll {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.25rem 2rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.schedule-grid {
+  display: grid;
+  grid-template-columns: 54px repeat(5, 1fr);
+  grid-template-rows: auto;
+  min-width: 680px;
+  background: var(--surface);
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+/* header row */
+.grid-header { display: contents; }
+.grid-header .corner {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.grid-header .day-col {
+  text-align: center;
+  font-size: .8rem;
+  font-weight: 600;
+  padding: .65rem .25rem;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+}
+.grid-header .day-col.today {
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+/* body */
+.grid-body { display: contents; }
+.time-col {
+  position: relative;
+  border-right: 1px solid var(--border);
+}
+.time-col .hour-label {
+  position: absolute;
+  right: 8px;
+  font-size: .65rem;
+  color: var(--hour-label);
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+.day-body {
+  position: relative;
+  border-left: 1px solid var(--border);
+}
+.hour-line {
+  position: absolute;
+  left: 0; right: 0;
+  border-top: 1px solid var(--grid-line);
+}
+
+/* class block */
+.class-block {
+  position: absolute;
+  left: 4px; right: 4px;
+  border-radius: .5rem;
+  padding: .35rem .45rem;
+  overflow: hidden;
+  font-size: .72rem;
+  line-height: 1.3;
+  border-left: 3px solid;
+  cursor: default;
+  transition: transform .1s, box-shadow .1s;
+  z-index: 2;
+}
+.class-block:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .1);
+  z-index: 5;
+}
+.class-block .cb-name {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.class-block .cb-time,
+.class-block .cb-room {
+  opacity: .8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* now indicator */
+.now-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: #ef4444;
+  z-index: 4;
+}
+.now-line::before {
+  content: '';
+  position: absolute;
+  left: -4px; top: -3px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+/* empty state */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+}
+.empty-state h2 { font-size: 1.1rem; margin-bottom: .5rem; }
+.empty-state a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* ── Responsive — schedule ─────────────────────────────── */
+@media (max-width: 640px) {
+  .upcoming-wrapper,
+  .week-heading,
+  .schedule-scroll {
+    padding-left: .75rem;
+    padding-right: .75rem;
+  }
+  .upcoming-card { padding: 1rem; }
+  .upcoming-card .course-name { font-size: 1.05rem; }
+  .schedule-grid { min-width: 560px; }
+}
+
+@media (max-width: 400px) {
+  .schedule-grid { min-width: 480px; }
+  .class-block { font-size: .65rem; padding: .25rem .35rem; }
+  .time-col .hour-label { font-size: .58rem; }
+}
