@@ -7,7 +7,7 @@
   <title>Manage Courses – GUtech Schedule</title>
   <link rel="stylesheet" href="common.css">
   <link rel="stylesheet" href="courses.css">
-  <script src="./script.js"></script>
+  <script src="./script.js" defer></script>
 </head>
 
 <body>
@@ -63,7 +63,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-(function () {
+document.addEventListener("DOMContentLoaded", function () {
   const listEl   = document.getElementById("course-list");
   const nameIn   = document.getElementById("course-name");
   const lecIn    = document.getElementById("course-lecturer");
@@ -150,7 +150,7 @@
   });
 
   renderList();
-})();
+}); // DOMContentLoaded
 </script>
 
 </body>
