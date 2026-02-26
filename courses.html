@@ -64,7 +64,7 @@
 
 <script src="./script.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+(function () {
   const listEl   = document.getElementById("course-list");
   const nameIn   = document.getElementById("course-name");
   const lecIn    = document.getElementById("course-lecturer");
@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   renderList();
-}); // DOMContentLoaded
+})();
 </script>
 
 </body>
